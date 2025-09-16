@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Interview Availability Generator — Aesthetic Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=DM+Sans:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        /* Girly / aesthetic pastel palette */
+        --bg1: #fff5fb; /* blush */
+        --bg2: #f6f7ff; /* periwinkle tint */
+        --card: #ffffff;
+        --ink: #2a2a2a;
+        --muted: #6f6b78;
+        --accent: #ff7eb6; /* pink */
+        --accent-2: #9d8cff; /* lavender */
+        --ring: #ffd1e6;
+        --ok: #2fb482;
+        --warn: #e0a100;
+        --err: #ff6b6b;
+        --chip: #f3ecff;
+        --shadow: 0 20px 50px rgba(157, 140, 255, 0.15),
+          0 10px 20px rgba(255, 126, 182, 0.12);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Plus Jakarta Sans", "DM Sans", ui-sans-serif, system-ui,
+          -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+        background: radial-gradient(
+            1200px 600px at 10% -10%,
+            var(--bg2) 0,
+            #fff 40%
+          ),
+          linear-gradient(180deg, var(--bg1), #ffffff 50%);
+      }
+      .wrap {
+        max-width: 980px;
+        margin: 42px auto;
+        padding: 0 20px;
+      }
+      .title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .title h1 {
+        font-size: 28px;
+        margin: 0;
+        letter-spacing: 0.3px;
+        font-weight: 800;
+      }
+      .title .spark {
+        font-size: 26px;
+      }
+      .sub {
+        margin: 0 0 22px;
+        color: var(--muted);
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid #f2ecff;
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+      }
+
+      .grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(12, 1fr);
+      }
+      .ctrl {
+        grid-column: span 12;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      @media (min-width: 860px) {
+        .ctrl.sm-3 {
+          grid-column: span 3;
+        }
+        .ctrl.sm-4 {
+          grid-column: span 4;
+        }
+        .ctrl.sm-5 {
+          grid-column: span 5;
+        }
+        .ctrl.sm-6 {
+          grid-column: span 6;
+        }
+        .ctrl.sm-7 {
+          grid-column: span 7;
+        }
+        .ctrl.sm-8 {
+          grid-column: span 8;
+        }
+        .ctrl.sm-9 {
+          grid-column: span 9;
+        }
+        .ctrl.sm-12 {
+          grid-column: span 12;
+        }
+      }
+
+      label {
+        font-size: 12px;
+        color: var(--muted);
+        letter-spacing: 0.2px;
+      }
+      input[type="number"],
+      input[type="time"],
+      input[type="text"],
+      select {
+        padding: 12px 12px;
+        border-radius: 12px;
+        border: 1px solid #ede7ff;
+        background: #fcfbff;
+        color: var(--ink);
+        outline: none;
+        transition: 0.2s border, 0.2s box-shadow;
+      }
+      input:focus,
+      select:focus {
+        border-color: var(--accent-2);
+        box-shadow: 0 0 0 4px var(--ring);
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .chip {
+        background: var(--chip);
+        color: #4f3dbb;
+        border: 1px solid #e8e0ff;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .btn {
+        appearance: none;
+        border: 1px solid #eddfff;
+        background: linear-gradient(180deg, #ffe8f3, #fbf4ff);
+        color: #4a386e;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+        padding: 11px 14px;
+        border-radius: 12px;
+        cursor: pointer;
+        box-shadow: var(--shadow);
+      }
+      .btn.primary {
+        background: linear-gradient(180deg, var(--accent), #ffb3d6);
+        color: white;
+        border-color: #ff9bc9;
+      }
+      .btn.ghost {
+        background: #fff;
+      }
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      .pill {
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px dashed #eddfff;
+        background: #fff;
+        color: #7b6ca8;
+        font-size: 12px;
+      }
+
+      .switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border: 1px solid #f0e9ff;
+        background: #fff;
+        border-radius: 12px;
+      }
+      .switch input {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--accent-2);
+      }
+
+      .slots {
+        margin-top: 14px;
+        display: grid;
+        gap: 10px;
+      }
+      .slot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: #fff;
+        border: 1px solid #f3ecff;
+        box-shadow: var(--shadow);
+      }
+      .slot time {
+        font-weight: 700;
+        letter-spacing: 0.2px;
+      }
+      .badge {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid #f0e9ff;
+        color: #7a709c;
+        background: #fbf9ff;
+      }
+
+      .footer {
+        margin-top: 16px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+      .status {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .ok {
+        color: var(--ok);
+      }
+      .warn {
+        color: var(--warn);
+      }
+      .err {
+        color: var(--err);
+      }
+
+      .stack {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .peek {
+        font-size: 12px;
+        color: #7b6ca8;
+      }
+
+      .divider {
+        height: 1px;
+        background: linear-gradient(to right, #f2eaff, #ffe8f4);
+        margin: 12px 0;
+        border: 0;
+      }
+
+      /* ===== Help UI (Floating Assistant) ===== */
+      .fab {
+        position: fixed;
+        right: 22px;
+        bottom: 22px;
+        z-index: 60;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 14px;
+        border-radius: 999px;
+        border: 1px solid #eddfff;
+        background: linear-gradient(180deg, #ffe8f3, #fbf4ff);
+        color: #4a386e;
+        font-weight: 800;
+        box-shadow: var(--shadow);
+        cursor: pointer;
+      }
+      .fab .k {
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: 6px;
+        background: #fff;
+        border: 1px solid #eddfff;
+        color: #7b6ca8;
+      }
+
+      .help-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(51, 38, 84, 0.35);
+        backdrop-filter: blur(6px);
+        z-index: 70;
+        display: none;
+      }
+      .help-dialog {
+        position: absolute;
+        right: 24px;
+        bottom: 84px;
+        width: min(720px, calc(100% - 48px));
+        max-height: min(80vh, 720px);
+        overflow: auto;
+        background: #fff;
+        border: 1px solid #f2ecff;
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+      }
+      .help-head {
+        position: sticky;
+        top: 0;
+        background: #fff;
+        padding: 14px 16px;
+        border-bottom: 1px solid #f2ecff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .help-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+      }
+      .help-close {
+        appearance: none;
+        border: 1px solid #eddfff;
+        background: #fff;
+        color: #7b6ca8;
+        border-radius: 10px;
+        padding: 8px 10px;
+        cursor: pointer;
+      }
+      .help-body {
+        padding: 16px;
+      }
+      .help-body h3 {
+        margin: 16px 0 8px;
+        font-size: 16px;
+      }
+      .help-body p {
+        margin: 6px 0;
+        color: #4b4069;
+      }
+      .help-body ul {
+        margin: 6px 0 10px 18px;
+      }
+      .kbd {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 12px;
+        padding: 2px 6px;
+        border-radius: 6px;
+        background: #fbf9ff;
+        border: 1px solid #f0e9ff;
+        color: #7a709c;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="title">
+        <span class="spark">✨</span>
+        <h1>Interview Availability Generator</h1>
+        <span class="pill">America/Toronto (ET)</span>
+      </div>
+      <p class="sub">
+        Pretty, practical, and fast. Generate cute, copy‑pasteable future slots
+        for recruiters. 💖
+      </p>
+
+      <div class="card">
+        <div class="grid" role="group" aria-label="Controls">
+          <div class="ctrl sm-4">
+            <label for="count"># of options</label>
+            <input id="count" type="number" min="1" max="24" value="6" />
+          </div>
+          <div class="ctrl sm-4">
+            <label for="daysAhead">Days ahead (max)</label>
+            <input id="daysAhead" type="number" min="1" max="120" value="21" />
+          </div>
+          <div class="ctrl sm-4">
+            <label for="name">Your name (for emails)</label>
+            <input
+              id="name"
+              type="text"
+              placeholder="Your name"
+              value="Sayma"
+            />
+          </div>
+
+          <div class="ctrl sm-3">
+            <label for="startTime">Workday start</label>
+            <input id="startTime" type="time" value="09:30" />
+          </div>
+          <div class="ctrl sm-3">
+            <label for="endTime">Workday end</label>
+            <input id="endTime" type="time" value="17:30" />
+          </div>
+          <div class="ctrl sm-3">
+            <label for="interval">Minute interval</label>
+            <select id="interval">
+              <option>15</option>
+              <option selected>30</option>
+              <option>45</option>
+              <option>60</option>
+            </select>
+          </div>
+          <div class="ctrl sm-3">
+            <label for="perDay">Max per day</label>
+            <select id="perDay">
+              <option value="0">No limit</option>
+              <option>1</option>
+              <option selected>2</option>
+              <option>3</option>
+              <option>4</option>
+            </select>
+          </div>
+
+          <div class="ctrl sm-12">
+            <div class="row">
+              <label class="switch" title="Avoid Saturdays & Sundays"
+                ><input id="weekdaysOnly" type="checkbox" checked /><span
+                  >Weekdays only</span
+                ></label
+              >
+              <label class="switch" title="Keep times near business hours"
+                ><input id="bizFriendly" type="checkbox" checked /><span
+                  >Business‑friendly</span
+                ></label
+              >
+              <label class="switch" title="Morning bias"
+                ><input id="morningBias" type="checkbox" /><span
+                  >Mornings</span
+                ></label
+              >
+              <label class="switch" title="Afternoon bias"
+                ><input id="afternoonBias" type="checkbox" /><span
+                  >Afternoons</span
+                ></label
+              >
+              <span class="pill"
+                >Format: <strong>Tue, Sep 23, 2025 — 10:30 AM ET</strong></span
+              >
+            </div>
+          </div>
+
+          <div class="ctrl sm-12">
+            <label>Quick presets</label>
+            <div class="chips">
+              <button class="chip" data-preset="next7">📅 Next 7 days</button>
+              <button class="chip" data-preset="next14">📅 Next 14 days</button>
+              <button class="chip" data-preset="nextWeek">
+                📆 Next work week (Mon–Fri)
+              </button>
+              <button class="chip" data-preset="mornings">
+                🌞 3 morning + 3 afternoon
+              </button>
+              <button class="chip" data-preset="afternoons">
+                🌤️ Afternoons only
+              </button>
+            </div>
+          </div>
+
+          <div class="ctrl sm-12">
+            <label for="blacklist"
+              >Exclude dates (optional, comma separated YYYY‑MM‑DD)</label
+            >
+            <input
+              id="blacklist"
+              type="text"
+              placeholder="2025-09-19, 2025-09-25"
+            />
+          </div>
+
+          <div class="ctrl sm-12">
+            <div class="stack">
+              <button id="gen" class="btn primary">Generate ✨</button>
+              <button id="copyList" class="btn" disabled>
+                Copy bullet list
+              </button>
+              <button id="copyEmail" class="btn" disabled>Copy email</button>
+              <select id="tone" title="Email tone" class="btn ghost">
+                <option value="pro">Email tone: Professional</option>
+                <option value="warm">Email tone: Friendly</option>
+              </select>
+              <button id="downloadICS" class="btn ghost" disabled>
+                Download .ics
+              </button>
+              <span id="status" class="status">Ready 💅</span>
+            </div>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <div id="peek" class="peek"></div>
+        <div id="slots" class="slots" aria-live="polite"></div>
+
+        <div class="footer">
+          <span class="status"
+            >Tip: tweak controls, hit <strong>Generate</strong>, then copy one
+            line or a full email. Nothing leaves your computer.</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Help Button -->
+    <button id="helpFab" class="fab" aria-label="Open help and user manual">
+      ❓ Help <span class="k">?</span>
+    </button>
+
+    <!-- Help / User Manual Modal -->
+    <div
+      id="helpModal"
+      class="help-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="helpTitle"
+    >
+      <div class="help-dialog" tabindex="-1">
+        <div class="help-head">
+          <div class="help-title">
+            <span>💖</span
+            ><span id="helpTitle"
+              >Interview Availability Generator — User Manual</span
+            >
+          </div>
+          <button id="helpClose" class="help-close" aria-label="Close help">
+            Close ✕
+          </button>
+        </div>
+        <div class="help-body">
+          <p class="sub" style="margin: 0 0 8px">
+            This guide shows you how to generate cute, copy‑pasteable interview
+            slots in your timezone (America/Toronto) and share them in seconds.
+          </p>
+
+          <h3>Quick Start</h3>
+          <ol>
+            <li>
+              Pick <strong># of options</strong> and
+              <strong>Days ahead</strong>.
+            </li>
+            <li>
+              Adjust <strong>Workday</strong> start/end and
+              <strong>Minute interval</strong>.
+            </li>
+            <li>
+              Keep <span class="kbd">Weekdays only</span> and
+              <span class="kbd">Business‑friendly</span> on for
+              recruiter‑friendly times.
+            </li>
+            <li>
+              Click <span class="kbd">Generate ✨</span>. Copy a single slot or
+              use <strong>Copy email</strong>.
+            </li>
+          </ol>
+
+          <h3>Controls Explained</h3>
+          <ul>
+            <li>
+              <strong># of options</strong> — how many time slots to produce.
+            </li>
+            <li>
+              <strong>Days ahead</strong> — randomizes within this future
+              window.
+            </li>
+            <li>
+              <strong>Workday start / end</strong> — bounds for times (24h
+              aware).
+            </li>
+            <li>
+              <strong>Minute interval</strong> — snaps start times to e.g.
+              15/30/60 minutes.
+            </li>
+            <li>
+              <strong>Max per day</strong> — cap slots per calendar day (e.g.,
+              2).
+            </li>
+            <li><strong>Weekdays only</strong> — avoids Sat/Sun.</li>
+            <li>
+              <strong>Business‑friendly</strong> — nudges away from very
+              early/late edges.
+            </li>
+            <li>
+              <strong>Mornings / Afternoons</strong> — soft bias toward that
+              part of day.
+            </li>
+            <li>
+              <strong>Exclude dates</strong> — comma‑separated YYYY‑MM‑DD list
+              to skip.
+            </li>
+          </ul>
+
+          <h3>Presets</h3>
+          <ul>
+            <li>
+              <strong>Next 7 / 14 days</strong> — fast weekday‑only window.
+            </li>
+            <li>
+              <strong>Next work week</strong> — focuses on the upcoming Mon–Fri.
+            </li>
+            <li>
+              <strong>3 morning + 3 afternoon</strong> — balanced spread for
+              variety.
+            </li>
+            <li>
+              <strong>Afternoons only</strong> — great for morning‑busy
+              schedules.
+            </li>
+          </ul>
+
+          <h3>Copy & Share</h3>
+          <ul>
+            <li>
+              <strong>Copy</strong> on a slot — copies one line like
+              <em>Tue, Sep 23, 2025 — 10:30 AM ET</em>.
+            </li>
+            <li>
+              <strong>Copy bullet list</strong> — pastes a neat list of all
+              options.
+            </li>
+            <li>
+              <strong>Copy email</strong> — generates a ready‑to‑send note;
+              choose <em>Professional</em> or <em>Friendly</em> tone and set
+              your <strong>Name</strong>.
+            </li>
+            <li>
+              <strong>Download .ics</strong> — creates calendar holds (30‑min
+              each) you can add to your calendar or attach to emails.
+            </li>
+          </ul>
+
+          <h3>Tips</h3>
+          <ul>
+            <li>
+              Use <strong>Max per day = 2</strong> for a recruiter‑friendly
+              spread.
+            </li>
+            <li>
+              Short on time? Tap a <strong>Preset</strong> then
+              <strong>Generate</strong>.
+            </li>
+            <li>
+              Blocking off time? Download the <strong>.ics</strong> to hold your
+              calendar.
+            </li>
+          </ul>
+
+          <h3>Troubleshooting</h3>
+          <ul>
+            <li>
+              <em>No slots generated</em> — Increase
+              <strong>Days ahead</strong>, disable
+              <strong>Weekdays only</strong>, or widen
+              <strong>Workday</strong> hours.
+            </li>
+            <li>
+              <em>Copy doesn’t work</em> — Your browser may block clipboard;
+              select text and use <span class="kbd">Ctrl/Cmd + C</span>.
+            </li>
+            <li>
+              <em>Timezone looks off</em> — All labels are formatted in
+              <strong>America/Toronto</strong> and show <strong>ET</strong>.
+              Adjust system time if needed.
+            </li>
+          </ul>
+
+          <h3>Keyboard Shortcuts</h3>
+          <ul>
+            <li><span class="kbd">?</span> — Open this help</li>
+            <li><span class="kbd">Esc</span> — Close help</li>
+          </ul>
+
+          <h3>Privacy</h3>
+          <p>
+            Everything runs locally in your browser. No data is sent anywhere.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ===== Utilities =====
+      const TZ = "America/Toronto";
+      const fmtLong = new Intl.DateTimeFormat("en-CA", {
+        timeZone: TZ,
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+      const fmtIso = new Intl.DateTimeFormat("en-CA", {
+        timeZone: TZ,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+
+      const el = (id) => document.getElementById(id);
+
+      function clamp(v, min, max) {
+        return Math.max(min, Math.min(max, v));
+      }
+      function isWeekend(d) {
+        const w = d.getDay();
+        return w === 0 || w === 6;
+      }
+      function parseHHMM(s) {
+        const [h, m] = s.split(":").map(Number);
+        return { h: clamp(h, 0, 23), m: clamp(m, 0, 59) };
+      }
+      function addDays(base, days) {
+        const d = new Date(base.getTime());
+        d.setDate(d.getDate() + days);
+        return d;
+      }
+      function toLocalDate(y, m, d, hh, mm) {
+        const dt = new Date();
+        dt.setFullYear(y, m, d);
+        dt.setHours(hh, mm, 0, 0);
+        return dt;
+      }
+      function snap(date, interval) {
+        date.setMinutes(
+          Math.floor(date.getMinutes() / interval) * interval,
+          0,
+          0
+        );
+        return date;
+      }
+
+      function toETLabel(d) {
+        const parts = fmtLong.formatToParts(d);
+        const m = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+        return `${m.weekday}, ${m.month} ${m.day}, ${m.year} — ${m.hour}:${m.minute} ${m.dayPeriod} ET`;
+      }
+
+      function partitionByDay(dates) {
+        const key = (dt) =>
+          new Intl.DateTimeFormat("en-CA", {
+            timeZone: TZ,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          }).format(dt);
+        const map = new Map();
+        dates.forEach((d) => {
+          const k = key(d);
+          if (!map.has(k)) map.set(k, []);
+          map.get(k).push(d);
+        });
+        return map;
+      }
+
+      // ===== Core generation =====
+      function generateSlots(cfg) {
+        const out = new Set();
+        const count = cfg.count;
+        const today = new Date();
+        const { h: sh, m: sm } = parseHHMM(cfg.start);
+        const { h: eh, m: em } = parseHHMM(cfg.end);
+        const openMin = Math.min(sh * 60 + sm, eh * 60 + em);
+        const closeMin = Math.max(sh * 60 + sm, eh * 60 + em);
+        const blacklist = new Set(
+          (cfg.blacklist || []).map((s) => s.trim()).filter(Boolean)
+        );
+
+        // helper to respect per-day cap
+        const dayCounts = new Map();
+        const keyDay = (dt) =>
+          new Intl.DateTimeFormat("en-CA", {
+            timeZone: TZ,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          }).format(dt);
+
+        let tries = 0,
+          maxTries = 6000;
+        while (out.size < count && tries++ < maxTries) {
+          let off = rand(1, Math.max(1, cfg.maxDaysAhead));
+          let base = addDays(today, off);
+
+          const y = base.getFullYear(),
+            m = base.getMonth(),
+            d = base.getDate();
+
+          if (cfg.weekdaysOnly && isWeekend(base)) continue;
+          const yyyy = y.toString().padStart(4, "0");
+          const mmStr = String(m + 1).padStart(2, "0");
+          const ddStr = String(d).padStart(2, "0");
+          const isoDay = `${yyyy}-${mmStr}-${ddStr}`;
+          if (blacklist.has(isoDay)) continue;
+
+          // Minute pick with optional bias
+          let minute = rand(openMin, closeMin);
+          if (cfg.bizFriendly) {
+            const pad = Math.min(60, Math.floor(cfg.interval / 2) + 30);
+            minute = clamp(minute, openMin + pad, closeMin - pad);
+          }
+          if (cfg.morningBias && cfg.afternoonBias) {
+            /* cancel out */
+          } else if (cfg.morningBias) {
+            minute = clamp(
+              minute,
+              openMin,
+              Math.floor((openMin + closeMin) / 2)
+            );
+          } else if (cfg.afternoonBias) {
+            minute = clamp(
+              minute,
+              Math.floor((openMin + closeMin) / 2) + 1,
+              closeMin
+            );
+          }
+
+          const hh = Math.floor(minute / 60),
+            mm = minute % 60;
+          const dt = snap(toLocalDate(y, m, d, hh, mm), cfg.interval);
+
+          // respect per-day max
+          const kd = keyDay(dt);
+          const cur = dayCounts.get(kd) || 0;
+          if (cfg.perDay > 0 && cur >= cfg.perDay) continue;
+
+          const epochMin = Math.floor(dt.getTime() / (60 * 1000));
+          if (!out.has(epochMin)) {
+            out.add(epochMin);
+            dayCounts.set(kd, cur + 1);
+          }
+        }
+        const arr = Array.from(out)
+          .map((k) => new Date(k * 60 * 1000))
+          .sort((a, b) => a - b);
+        return arr;
+      }
+
+      function rand(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      // ===== Email builders & ICS =====
+      function bulletLines(dates) {
+        return dates.map((d) => `• ${toETLabel(d)}`);
+      }
+
+      function buildEmail(dates, name, tone) {
+        const bullets = bulletLines(dates).join("\n");
+        if (tone === "warm") {
+          return `Hi there!\n\nHere are a few interview times that work for me (America/Toronto):\n\n${bullets}\n\nIf none of these work, I'm happy to suggest alternatives.\n\nThanks so much,\n${name}`;
+        }
+        return `Hello,\n\nPlease find a few interview times that work for me (America/Toronto):\n\n${bullets}\n\nIf none of these are suitable, I can propose alternatives.\n\nKind regards,\n${name}`;
+      }
+
+      function icsForDates(dates, name) {
+        const pad2 = (n) => String(n).padStart(2, "0");
+        const toUTC = (d) => {
+          const y = d.getUTCFullYear();
+          const m = pad2(d.getUTCMonth() + 1);
+          const da = pad2(d.getUTCDate());
+          const h = pad2(d.getUTCHours());
+          const mi = pad2(d.getUTCMinutes());
+          const s = pad2(d.getUTCSeconds());
+          return `${y}${m}${da}T${h}${mi}${s}Z`;
+        };
+        const now = toUTC(new Date());
+        let cal = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Availability Generator//EN\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n`;
+        dates.forEach((d, i) => {
+          // default 30-min holds
+          const end = new Date(d.getTime() + 30 * 60 * 1000);
+          const uid = `${d.getTime()}-${i}@availability.local`;
+          const startLbl = toETLabel(d);
+          cal += `BEGIN:VEVENT\nUID:${uid}\nDTSTAMP:${now}\nDTSTART:${toUTC(
+            d
+          )}\nDTEND:${toUTC(
+            end
+          )}\nSUMMARY:Interview availability hold — ${name}\nDESCRIPTION:${startLbl}\nEND:VEVENT\n`;
+        });
+        cal += `END:VCALENDAR`;
+        return cal;
+      }
+
+      function download(filename, content, mime) {
+        const blob = new Blob([content], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 500);
+      }
+
+      // ===== DOM wiring =====
+      const els = {
+        count: el("count"),
+        daysAhead: el("daysAhead"),
+        name: el("name"),
+        startTime: el("startTime"),
+        endTime: el("endTime"),
+        interval: el("interval"),
+        perDay: el("perDay"),
+        weekdaysOnly: el("weekdaysOnly"),
+        bizFriendly: el("bizFriendly"),
+        morningBias: el("morningBias"),
+        afternoonBias: el("afternoonBias"),
+        blacklist: el("blacklist"),
+        gen: el("gen"),
+        copyList: el("copyList"),
+        copyEmail: el("copyEmail"),
+        tone: el("tone"),
+        downloadICS: el("downloadICS"),
+        slots: el("slots"),
+        status: el("status"),
+        peek: el("peek"),
+      };
+
+      function getCfg() {
+        const bl = (els.blacklist.value || "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        return {
+          count: clamp(parseInt(els.count.value || "6", 10), 1, 24),
+          maxDaysAhead: clamp(
+            parseInt(els.daysAhead.value || "21", 10),
+            1,
+            120
+          ),
+          start: els.startTime.value || "09:30",
+          end: els.endTime.value || "17:30",
+          interval: clamp(parseInt(els.interval.value || "30", 10), 5, 180),
+          perDay: parseInt(els.perDay.value || "0", 10),
+          weekdaysOnly: !!els.weekdaysOnly.checked,
+          bizFriendly: !!els.bizFriendly.checked,
+          morningBias: !!els.morningBias.checked,
+          afternoonBias: !!els.afternoonBias.checked,
+          blacklist: bl,
+        };
+      }
+
+      function render(dates) {
+        const target = els.slots;
+        target.innerHTML = "";
+        if (!dates.length) {
+          els.copyList.disabled =
+            els.copyEmail.disabled =
+            els.downloadICS.disabled =
+              true;
+          els.status.innerHTML =
+            '<span class="err">No slots — loosen the settings ✨</span>';
+          return;
+        }
+
+        // summary peek
+        const byDay = partitionByDay(dates);
+        els.peek.innerHTML = Array.from(byDay.entries())
+          .map(
+            ([day, arr]) => `<span class=\"pill\">${day} × ${arr.length}</span>`
+          )
+          .join(" ");
+
+        const frag = document.createDocumentFragment();
+        dates.forEach((d) => {
+          const line = toETLabel(d);
+          const li = document.createElement("div");
+          li.className = "slot";
+          const left = document.createElement("div");
+          left.className = "row";
+          const t = document.createElement("time");
+          t.textContent = line;
+          const badge = document.createElement("span");
+          badge.className = "badge";
+          badge.textContent = fmtIso.format(d).replace(",", "") + " ET";
+          left.appendChild(t);
+          left.appendChild(badge);
+          const btn = document.createElement("button");
+          btn.className = "btn";
+          btn.textContent = "Copy";
+          btn.addEventListener("click", () => copy(line));
+          li.appendChild(left);
+          li.appendChild(btn);
+          frag.appendChild(li);
+        });
+        target.appendChild(frag);
+
+        els.copyList.disabled =
+          els.copyEmail.disabled =
+          els.downloadICS.disabled =
+            false;
+        ok(`Generated ${dates.length} slot${dates.length > 1 ? "s" : ""} ✨`);
+      }
+
+      async function copy(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          ok("Copied ✔");
+        } catch {
+          warn("Copy failed — select & Ctrl/Cmd+C");
+        }
+      }
+
+      function ok(msg) {
+        els.status.innerHTML = `<span class="ok">${msg}</span>`;
+        setTimeout(() => (els.status.textContent = "Ready 💅"), 2000);
+      }
+      function warn(msg) {
+        els.status.innerHTML = `<span class="warn">${msg}</span>`;
+      }
+
+      // Buttons
+      els.gen.addEventListener("click", () => {
+        const cfg = getCfg();
+        const dates = generateSlots(cfg);
+        render(dates);
+
+        const bullets = bulletLines(dates);
+        els.copyList.onclick = () => copy(bullets.join("\n"));
+        els.copyEmail.onclick = () =>
+          copy(buildEmail(dates, els.name.value || "Me", els.tone.value));
+        els.downloadICS.onclick = () =>
+          download(
+            "availability.ics",
+            icsForDates(dates, els.name.value || "Me"),
+            "text/calendar"
+          );
+      });
+
+      // Quick presets
+      document.querySelectorAll("[data-preset]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const p = btn.getAttribute("data-preset");
+          if (p === "next7") {
+            els.daysAhead.value = 7;
+            els.weekdaysOnly.checked = true;
+          }
+          if (p === "next14") {
+            els.daysAhead.value = 14;
+            els.weekdaysOnly.checked = true;
+          }
+          if (p === "nextWeek") {
+            // Mon–Fri next calendar week
+            const today = new Date();
+            const dow = today.getDay();
+            const daysUntilMonday = (8 - dow) % 7 || 7; // next Monday
+            // Cap the range tightly around next week
+            els.daysAhead.value = daysUntilMonday + 5; // enough to cover next Mon–Fri
+            els.weekdaysOnly.checked = true;
+            els.perDay.value = 2;
+          }
+          if (p === "mornings") {
+            els.count.value = 6;
+            els.morningBias.checked = true;
+            els.afternoonBias.checked = true; /* 3/3 achieved by per-day+random */
+          }
+          if (p === "afternoons") {
+            els.count.value = 6;
+            els.morningBias.checked = false;
+            els.afternoonBias.checked = true;
+          }
+          ok("Preset applied ✨");
+        });
+      });
+
+      // Auto-generate on load for a cute first view
+      window.addEventListener("DOMContentLoaded", () => els.gen.click());
+
+      // ===== Help UI wiring =====
+      const helpFab = document.getElementById("helpFab");
+      const helpModal = document.getElementById("helpModal");
+      const helpClose = document.getElementById("helpClose");
+      function openHelp() {
+        helpModal.style.display = "block";
+        document.querySelector(".help-dialog").focus();
+      }
+      function closeHelp() {
+        helpModal.style.display = "none";
+      }
+      helpFab.addEventListener("click", openHelp);
+      helpClose.addEventListener("click", closeHelp);
+      helpModal.addEventListener("click", (e) => {
+        if (e.target === helpModal) closeHelp();
+      });
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "?" || (e.shiftKey && e.key === "/")) openHelp();
+        if (e.key === "Escape") closeHelp();
+      });
+    </script>
+  </body>
+</html>
