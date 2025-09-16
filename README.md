@@ -31,6 +31,8 @@ Help Modal:
 ## 📦 Installation
 
 1. Clone this repo:
+
    ```bash
-   git clone https://github.com/YOUR-USERNAME/availability-generator.git
+   git clone https://github.com/saymajahan316/availability-generator.git
+
    ```
