@@ -3,7 +3,7 @@
 Aesthetic one-page web app that generates random **future interview availability slots** (Toronto/ET timezone).  
 Perfect for job seekers who want to copy/paste professional time options into recruiter emails. 💖
 
-🌐 Live demo: [https://YOUR-USERNAME.github.io/availability-generator/](https://YOUR-USERNAME.github.io/availability-generator/)
+🌐 Live demo: [https://saymajahan316.github.io/availability-generator/](https://saymajahan316.github.io/availability-generator/)
 
 ---
 
