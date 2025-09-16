@@ -18,9 +18,13 @@ Perfect for job seekers who want to copy/paste professional time options into re
 
 ---
 
-## 🖼 Screenshots
+## 🖼 Preview
 
-_Add screenshots of the app here (UI + Help modal)._
+Main UI:
+![Main UI](Screenshot1.png)
+
+Help Modal:
+![Help Modal](Screenshot2.png)
 
 ---
 
