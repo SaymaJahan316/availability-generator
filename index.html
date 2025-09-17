@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Interview Availability Generator</title>
+    <title>Interview Availability Generator — Calendar Smart</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,13 +15,13 @@
   <body>
     <div class="wrap">
       <div class="title">
-        <span class="spark">✨</span>
-        <h1>Interview Availability Generator</h1>
+        <span class="spark">🗓️</span>
+        <h1>Interview Availability Generator — Calendar Smart</h1>
         <span class="pill">America/Toronto (ET)</span>
       </div>
       <p class="sub">
-        Pretty, practical, and fast. Generate cute, copy-pasteable future slots
-        for recruiters. 💖
+        Generate cute, copy-pasteable availability — optionally filtered by your
+        real calendar (Google or .ics import). 💖
       </p>
 
       <div class="card">
@@ -95,32 +95,41 @@
             </div>
           </div>
 
+          <!-- Calendar integration controls -->
           <div class="ctrl sm-12">
-            <label>Quick presets</label>
-            <div class="chips">
-              <button class="chip" data-preset="next7">📅 Next 7 days</button>
-              <button class="chip" data-preset="next14">📅 Next 14 days</button>
-              <button class="chip" data-preset="nextWeek">
-                📆 Next work week (Mon–Fri)
-              </button>
-              <button class="chip" data-preset="mornings">
-                🌞 3 morning + 3 afternoon
-              </button>
-              <button class="chip" data-preset="afternoons">
-                🌤️ Afternoons only
-              </button>
-            </div>
-          </div>
-
-          <div class="ctrl sm-12">
-            <label for="blacklist"
-              >Exclude dates (YYYY-MM-DD, comma separated)</label
+            <label>Calendar integration (optional)</label>
+            <div
+              class="row"
+              style="gap: 10px; align-items: center; flex-wrap: wrap"
             >
-            <input
-              id="blacklist"
-              type="text"
-              placeholder="2025-09-19, 2025-09-25"
-            />
+              <label
+                class="switch"
+                title="Read busy blocks from your Google Calendar"
+                ><input id="useGoogle" type="checkbox" /><span
+                  >Use my Google Calendar (readonly)</span
+                ></label
+              >
+              <button id="googleAuth" class="btn ghost" disabled>
+                🔗 Connect Google Calendar
+              </button>
+
+              <label
+                class="switch"
+                title="Import an .ics file (Apple/Outlook/iCloud export)"
+                ><input id="useICS" type="checkbox" /><span
+                  >Use .ics file</span
+                ></label
+              >
+              <input
+                id="icsFile"
+                type="file"
+                accept=".ics,text/calendar"
+                style="display: none"
+              />
+              <button id="chooseICS" class="btn ghost">📁 Choose .ics</button>
+
+              <span id="calendarStatus" class="status"></span>
+            </div>
           </div>
 
           <div class="ctrl sm-12">
@@ -149,8 +158,9 @@
 
         <div class="footer">
           <span class="status"
-            >Tip: tweak controls, hit <strong>Generate</strong>, then copy one
-            line or a full email. Nothing leaves your computer.</span
+            >Tip: connect Google or import an <strong>.ics</strong> to filter
+            out busy times. All logic runs locally (Google OAuth only if you opt
+            in).</span
           >
         </div>
       </div>
@@ -172,36 +182,33 @@
       <div class="help-dialog" tabindex="-1">
         <div class="help-head">
           <div class="help-title">
-            <span>💖</span
-            ><span id="helpTitle"
-              >Interview Availability Generator — User Manual</span
-            >
+            <span>💖</span><span id="helpTitle">User Manual</span>
           </div>
           <button id="helpClose" class="help-close" aria-label="Close help">
             Close ✕
           </button>
         </div>
         <div class="help-body">
-          <!-- (Same manual content as before) -->
-          <h3>Quick Start</h3>
-          <ol>
+          <h3>Calendar connections</h3>
+          <ul>
             <li>
-              Pick <strong># of options</strong> and
-              <strong>Days ahead</strong>.
+              <strong>Google</strong>: toggle on, click
+              <em>Connect Google Calendar</em>, sign in → we read busy blocks
+              via FreeBusy API (readonly).
             </li>
             <li>
-              Adjust <strong>Workday</strong> start/end and
-              <strong>Minute interval</strong>.
+              <strong>Apple / iOS</strong>: export an <code>.ics</code> (via
+              iCloud.com) and import it here. We parse events locally and filter
+              conflicts.
             </li>
-            <li>
-              Click <strong>Generate</strong>. Copy a single slot or use
-              <strong>Copy email</strong>.
-            </li>
-          </ol>
-          <!-- … (keep rest of manual) … -->
+          </ul>
         </div>
       </div>
     </div>
+
+    <!-- Google identity & API (only used if you connect Google Calendar) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js" async defer></script>
 
     <script src="assets/app.js"></script>
   </body>

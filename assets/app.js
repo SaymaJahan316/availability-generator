@@ -45,6 +45,12 @@ const els = {
   helpFab: el("helpFab"),
   helpModal: el("helpModal"),
   helpClose: el("helpClose"),
+  useGoogle: el("useGoogle"),
+  googleAuth: el("googleAuth"),
+  useICS: el("useICS"),
+  icsFile: el("icsFile"),
+  chooseICS: el("chooseICS"),
+  calendarStatus: el("calendarStatus"),
 };
 
 function clamp(v, min, max) {
@@ -76,7 +82,6 @@ function snap(date, interval) {
 function rand(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
 function toETLabel(d) {
   const parts = fmtLong.formatToParts(d);
   const m = Object.fromEntries(parts.map((p) => [p.type, p.value]));
@@ -99,9 +104,9 @@ function partitionByDay(dates) {
   return map;
 }
 
-// ===== Core generation =====
+// ===== Generation =====
 function getCfg() {
-  const bl = (els.blacklist.value || "")
+  const bl = (els.blacklist?.value || "")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
@@ -125,8 +130,8 @@ function generateSlots(cfg) {
   const today = new Date();
   const { h: sh, m: sm } = parseHHMM(cfg.start);
   const { h: eh, m: em } = parseHHMM(cfg.end);
-  const openMin = Math.min(sh * 60 + sm, eh * 60 + em);
-  const closeMin = Math.max(sh * 60 + sm, eh * 60 + em);
+  const openMin = Math.min(sh * 60 + sm, eh * 60 + em),
+    closeMin = Math.max(sh * 60 + sm, eh * 60 + em);
   const blacklist = new Set(
     (cfg.blacklist || []).map((s) => s.trim()).filter(Boolean)
   );
@@ -149,10 +154,10 @@ function generateSlots(cfg) {
       d = base.getDate();
     if (cfg.weekdaysOnly && isWeekend(base)) continue;
 
-    const yyyy = y.toString().padStart(4, "0");
-    const mmStr = String(m + 1).padStart(2, "0");
-    const ddStr = String(d).padStart(2, "0");
-    const isoDay = `${yyyy}-${mmStr}-${ddStr}`;
+    const isoDay = `${y.toString().padStart(4, "0")}-${String(m + 1).padStart(
+      2,
+      "0"
+    )}-${String(d).padStart(2, "0")}`;
     if (blacklist.has(isoDay)) continue;
 
     let minute = rand(openMin, closeMin);
@@ -161,7 +166,7 @@ function generateSlots(cfg) {
       minute = clamp(minute, openMin + pad, closeMin - pad);
     }
     if (cfg.morningBias && cfg.afternoonBias) {
-      /* cancel out */
+      /* cancel */
     } else if (cfg.morningBias) {
       minute = clamp(minute, openMin, Math.floor((openMin + closeMin) / 2));
     } else if (cfg.afternoonBias) {
@@ -176,8 +181,8 @@ function generateSlots(cfg) {
       mm = minute % 60;
     const dt = snap(toLocalDate(y, m, d, hh, mm), cfg.interval);
 
-    const kd = keyDay(dt);
-    const cur = dayCounts.get(kd) || 0;
+    const kd = keyDay(dt),
+      cur = dayCounts.get(kd) || 0;
     if (cfg.perDay > 0 && cur >= cfg.perDay) continue;
 
     const epochMin = Math.floor(dt.getTime() / (60 * 1000));
@@ -191,16 +196,19 @@ function generateSlots(cfg) {
     .sort((a, b) => a - b);
 }
 
-// ===== Email / ICS =====
+// ===== Email / ICS export =====
 function bulletLines(dates) {
   return dates.map((d) => `• ${toETLabel(d)}`);
 }
 function buildEmail(dates, name, tone) {
   const bullets = bulletLines(dates).join("\n");
-  if (tone === "warm") {
-    return `Hi there!\n\nHere are a few interview times that work for me (America/Toronto):\n\n${bullets}\n\nIf none of these work, I'm happy to suggest alternatives.\n\nThanks so much,\n${name}`;
-  }
-  return `Hello,\n\nPlease find a few interview times that work for me (America/Toronto):\n\n${bullets}\n\nIf none of these are suitable, I can propose alternatives.\n\nKind regards,\n${name}`;
+  return tone === "warm"
+    ? `Hi there!\n\nHere are a few interview times that work for me (America/Toronto):\n\n${bullets}\n\nIf none of these work, I'm happy to suggest alternatives.\n\nThanks so much,\n${
+        name || "Candidate"
+      }`
+    : `Hello,\n\nPlease find a few interview times that work for me (America/Toronto):\n\n${bullets}\n\nIf none of these are suitable, I can propose alternatives.\n\nKind regards,\n${
+        name || "Candidate"
+      }`;
 }
 function icsForDates(dates, name) {
   const pad2 = (n) => String(n).padStart(2, "0");
@@ -218,14 +226,13 @@ function icsForDates(dates, name) {
     const startLbl = toETLabel(d);
     cal += `BEGIN:VEVENT\nUID:${uid}\nDTSTAMP:${now}\nDTSTART:${toUTC(
       d
-    )}\nDTEND:${toUTC(
-      end
-    )}\nSUMMARY:Interview availability hold — ${name}\nDESCRIPTION:${startLbl}\nEND:VEVENT\n`;
+    )}\nDTEND:${toUTC(end)}\nSUMMARY:Interview availability hold — ${
+      name || "Candidate"
+    }\nDESCRIPTION:${startLbl}\nEND:VEVENT\n`;
   });
   cal += `END:VCALENDAR`;
   return cal;
 }
-
 async function copy(text) {
   try {
     await navigator.clipboard.writeText(text);
@@ -241,10 +248,9 @@ function ok(msg) {
 function warn(msg) {
   els.status.innerHTML = `<span class="warn">${msg}</span>`;
 }
-
 function render(dates) {
-  const target = els.slots;
-  target.innerHTML = "";
+  const t = els.slots;
+  t.innerHTML = "";
   if (!dates.length) {
     els.copyList.disabled =
       els.copyEmail.disabled =
@@ -258,7 +264,6 @@ function render(dates) {
   els.peek.innerHTML = Array.from(byDay.entries())
     .map(([day, arr]) => `<span class="pill">${day} × ${arr.length}</span>`)
     .join(" ");
-
   const frag = document.createDocumentFragment();
   dates.forEach((d) => {
     const line = toETLabel(d);
@@ -266,12 +271,12 @@ function render(dates) {
     li.className = "slot";
     const left = document.createElement("div");
     left.className = "row";
-    const t = document.createElement("time");
-    t.textContent = line;
+    const timeEl = document.createElement("time");
+    timeEl.textContent = line;
     const badge = document.createElement("span");
     badge.className = "badge";
     badge.textContent = fmtIso.format(d).replace(",", "") + " ET";
-    left.appendChild(t);
+    left.appendChild(timeEl);
     left.appendChild(badge);
     const btn = document.createElement("button");
     btn.className = "btn";
@@ -281,8 +286,7 @@ function render(dates) {
     li.appendChild(btn);
     frag.appendChild(li);
   });
-  target.appendChild(frag);
-
+  t.appendChild(frag);
   els.copyList.disabled =
     els.copyEmail.disabled =
     els.downloadICS.disabled =
@@ -290,18 +294,207 @@ function render(dates) {
   ok(`Generated ${dates.length} slot${dates.length > 1 ? "s" : ""} ✨`);
 }
 
-// ===== Events (Generate + Presets + Help) =====
-els.gen.addEventListener("click", () => {
-  const cfg = getCfg();
-  const dates = generateSlots(cfg);
-  render(dates);
+// ===== Google Calendar (FreeBusy) =====
+const GOOGLE = {
+  CLIENT_ID:
+    "894100688957-gsurkh6qra5v87ggm7def4511i4hh31d.apps.googleusercontent.com",
+  SCOPES: "https://www.googleapis.com/auth/calendar.readonly",
+  DISCOVERY_DOC:
+    "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
+};
+let gapiInited = false,
+  gisInited = false,
+  tokenClient = null,
+  accessToken = null;
+function setCalStatus(msg, type = "") {
+  els.calendarStatus.innerHTML = `<span class="${
+    type || "status"
+  }">${msg}</span>`;
+}
+function gapiLoaded() {
+  if (!window.gapi) return;
+  gapi.load("client", initializeGapiClient);
+}
+async function initializeGapiClient() {
+  try {
+    await gapi.client.init({ discoveryDocs: [GOOGLE.DISCOVERY_DOC] });
+    gapiInited = true;
+    maybeEnableGoogle();
+  } catch {
+    setCalStatus("Google API init failed", "err");
+  }
+}
+function gisLoaded() {
+  if (!window.google?.accounts?.oauth2) return;
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE.CLIENT_ID,
+    scope: GOOGLE.SCOPES,
+    callback: (resp) => {
+      if (resp.error) {
+        setCalStatus("Auth error", "err");
+        return;
+      }
+      accessToken = resp.access_token || google.accounts.oauth2.getToken();
+      setCalStatus("Google Calendar connected ✔", "ok");
+    },
+  });
+  gisInited = true;
+  maybeEnableGoogle();
+}
+function maybeEnableGoogle() {
+  if (gapiInited && gisInited) els.googleAuth.disabled = false;
+}
+window.addEventListener("DOMContentLoaded", () => {
+  gapiLoaded();
+  gisLoaded();
+});
+async function ensureGoogleAuth() {
+  if (accessToken) return true;
+  return new Promise((resolve) => {
+    tokenClient.requestAccessToken({ prompt: "consent" });
+    const iv = setInterval(() => {
+      if (accessToken) {
+        clearInterval(iv);
+        resolve(true);
+      }
+    }, 300);
+    setTimeout(() => {
+      clearInterval(iv);
+      resolve(!!accessToken);
+    }, 4000);
+  });
+}
+async function getBusyIntervals_Google(timeMinISO, timeMaxISO) {
+  try {
+    const resp = await gapi.client.calendar.freebusy.query({
+      timeMin: timeMinISO,
+      timeMax: timeMaxISO,
+      items: [{ id: "primary" }],
+    });
+    const busy = resp.result.calendars.primary.busy || [];
+    return busy.map((b) => ({
+      start: new Date(b.start),
+      end: new Date(b.end),
+    }));
+  } catch (e) {
+    setCalStatus("FreeBusy failed (check OAuth & origins)", "err");
+    return [];
+  }
+}
 
+// ===== ICS import (Apple iCloud / Outlook / any .ics) =====
+let icsBusy = [];
+function parseICSDate(val) {
+  const v = String(val).trim();
+  if (/Z$/.test(v)) {
+    // UTC
+    const y = v.slice(0, 4),
+      mo = v.slice(4, 6),
+      d = v.slice(6, 8),
+      hh = v.slice(9, 11),
+      mm = v.slice(11, 13),
+      ss = v.slice(13, 15);
+    return new Date(Date.UTC(+y, +mo - 1, +d, +hh, +mm, +ss || 0));
+  } else if (/^\d{8}T\d{6}$/.test(v)) {
+    // floating local time
+    const y = v.slice(0, 4),
+      mo = v.slice(4, 6),
+      d = v.slice(6, 8),
+      hh = v.slice(9, 11),
+      mm = v.slice(11, 13),
+      ss = v.slice(13, 15);
+    const dt = new Date();
+    dt.setFullYear(+y, +mo - 1, +d);
+    dt.setHours(+hh, +mm, +ss || 0, 0);
+    return dt;
+  }
+  return null;
+}
+function parseICS(text) {
+  const lines = text.replace(/\r\n/g, "\n").split(/\n/);
+  const events = [];
+  let cur = null;
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (line === "BEGIN:VEVENT") cur = {};
+    else if (line === "END:VEVENT") {
+      if (cur?.DTSTART && cur?.DTEND) {
+        const s = parseICSDate(cur.DTSTART);
+        const e = parseICSDate(cur.DTEND);
+        if (s && e) events.push({ start: s, end: e });
+      }
+      cur = null;
+    } else if (cur) {
+      const idx = line.indexOf(":");
+      if (idx > 0) {
+        const keyPart = line.slice(0, idx);
+        const val = line.slice(idx + 1);
+        const key = keyPart.split(";")[0];
+        if (key === "DTSTART" || key === "DTEND") cur[key] = val;
+      }
+    }
+  }
+  return events;
+}
+
+// ===== Availability filter =====
+function overlaps(aStart, aEnd, bStart, bEnd) {
+  return aStart < bEnd && bStart < aEnd;
+}
+async function filterByCalendarAvailability(dates) {
+  let busy = [];
+  if (els.useICS.checked && icsBusy.length) busy = busy.concat(icsBusy);
+  if (els.useGoogle.checked) {
+    const start = new Date(dates[0].getTime());
+    const end = new Date(dates[dates.length - 1].getTime() + 30 * 60 * 1000);
+    if (await ensureGoogleAuth()) {
+      busy = busy.concat(
+        await getBusyIntervals_Google(start.toISOString(), end.toISOString())
+      );
+    } else {
+      setCalStatus("Sign-in required to read Google Calendar.", "warn");
+    }
+  }
+  if (!busy.length) return dates;
+  const filtered = dates.filter((d) => {
+    const s = d,
+      e = new Date(d.getTime() + 30 * 60 * 1000);
+    return !busy.some((b) => overlaps(s, e, b.start, b.end));
+  });
+  setCalStatus(`Filtered to ${filtered.length} free slots ✔`, "ok");
+  return filtered;
+}
+
+// ===== Events =====
+els.chooseICS.addEventListener("click", () => els.icsFile.click());
+els.icsFile.addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const txt = await file.text();
+  icsBusy = parseICS(txt);
+  setCalStatus(`Loaded ${icsBusy.length} busy events from .ics ✔`, "ok");
+});
+els.googleAuth.addEventListener("click", async () => {
+  const okk = await ensureGoogleAuth();
+  if (okk) setCalStatus("Google Calendar connected ✔", "ok");
+});
+
+els.gen.addEventListener("click", async () => {
+  const cfg = getCfg();
+  let dates = generateSlots(cfg);
+  if (
+    dates.length &&
+    (els.useGoogle.checked || (els.useICS.checked && icsBusy.length))
+  ) {
+    dates = await filterByCalendarAvailability(dates);
+  }
+  render(dates);
   const bullets = bulletLines(dates);
   els.copyList.onclick = () => copy(bullets.join("\n"));
   els.copyEmail.onclick = () =>
-    copy(buildEmail(dates, els.name.value || "Me", els.tone.value));
+    copy(buildEmail(dates, els.name.value || "Candidate", els.tone.value));
   els.downloadICS.onclick = () => {
-    const ics = icsForDates(dates, els.name.value || "Me");
+    const ics = icsForDates(dates, els.name.value || "Candidate");
     const blob = new Blob([ics], { type: "text/calendar" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -310,40 +503,6 @@ els.gen.addEventListener("click", () => {
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 500);
   };
-});
-
-// Presets
-document.querySelectorAll("[data-preset]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const p = btn.getAttribute("data-preset");
-    if (p === "next7") {
-      els.daysAhead.value = 7;
-      els.weekdaysOnly.checked = true;
-    }
-    if (p === "next14") {
-      els.daysAhead.value = 14;
-      els.weekdaysOnly.checked = true;
-    }
-    if (p === "nextWeek") {
-      const today = new Date();
-      const dow = today.getDay();
-      const daysUntilMonday = (8 - dow) % 7 || 7;
-      els.daysAhead.value = daysUntilMonday + 5;
-      els.weekdaysOnly.checked = true;
-      els.perDay.value = 2;
-    }
-    if (p === "mornings") {
-      els.count.value = 6;
-      els.morningBias.checked = true;
-      els.afternoonBias.checked = true;
-    }
-    if (p === "afternoons") {
-      els.count.value = 6;
-      els.morningBias.checked = false;
-      els.afternoonBias.checked = true;
-    }
-    ok("Preset applied ✨");
-  });
 });
 
 // Help modal
@@ -364,5 +523,5 @@ window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeHelp();
 });
 
-// Auto-generate on first load
+// Auto-generate on load
 window.addEventListener("DOMContentLoaded", () => els.gen.click());
